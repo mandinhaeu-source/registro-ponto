@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Registro de Ponto</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--surface:#fff;--border:rgba(0,0,0,.1);--border-s:rgba(0,0,0,.18);
+  --text:#1a1a1a;--ts:#6b6b6b;--tt:#aaa;
+  --green:#1D9E75;--gbg:#EAF7F1;--gt:#0d5c43;
+  --red:#D85A30;--rbg:#FDF0EB;--rt:#7a2e14;
+  --blue:#2563EB;--bbg:#EFF4FF;--bt:#1e3a8a;
+  --amber:#b45309;--abg:#fffbeb;--at:#78350f;
+  --indigo:#4f46e5;--ibg:#eef2ff;--it:#3730a3;
+  --r:10px;--rl:14px
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:1.5rem 1rem 4rem}
+.wrap{max-width:520px;margin:0 auto}
+h1{font-size:18px;font-weight:500;letter-spacing:-.3px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.live{font-family:'DM Mono',monospace;font-size:13px;color:var(--ts)}
+.tabs{display:flex;background:rgba(0,0,0,.06);border-radius:var(--r);padding:4px;margin-bottom:1.25rem}
+.tab{flex:1;padding:8px;border:none;background:transparent;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ts);cursor:pointer;transition:all .15s}
+.tab.active{background:var(--surface);color:var(--text);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:1.25rem;margin-bottom:1rem}
+.lbl{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:var(--tt);margin-bottom:10px}
+.ugrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:1rem}
+.ubtn{padding:10px 8px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:center;transition:all .15s}
+.ubtn:hover{border-color:var(--border-s)}
+.ubtn.sel{border:2px solid var(--blue);background:var(--bbg);color:var(--bt);font-weight:500}
+.row{display:flex;gap:8px}
+.row input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:14px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none}
+.row input:focus{border-color:var(--border-s)}
+.row button,.btn-sm{padding:9px 14px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);cursor:pointer;white-space:nowrap}
+.row button:hover,.btn-sm:hover{background:var(--bg)}
+.clock-block{text-align:center;padding:1.25rem 0 .75rem}
+.clock-t{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;letter-spacing:-2px;line-height:1}
+.clock-d{font-size:13px;color:var(--ts);margin-top:6px}
+.pill{display:inline-block;font-size:12px;padding:4px 12px;border-radius:99px;margin-top:10px}
+.pill-out{background:rgba(0,0,0,.05);color:var(--ts)}
+.pill-in{background:var(--gbg);color:var(--gt)}
+.pill-almoco{background:var(--abg);color:var(--at)}
+.pill-done{background:rgba(0,0,0,.07);color:var(--tt)}
+.obs-area{margin:12px 0 4px}
+.obs-area label{font-size:12px;color:var(--ts);display:block;margin-bottom:5px}
+.obs-area textarea,.obs-edit textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:14px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;resize:none;line-height:1.5}
+.obs-area textarea:focus,.obs-edit textarea:focus{border-color:var(--border-s)}
+.btn-p{width:100%;padding:14px;border:none;border-radius:var(--r);font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;margin-top:8px}
+.btn-p:active{transform:scale(.98)}
+.bp-entrada{background:var(--green);color:#fff}
+.bp-almoco{background:var(--amber);color:#fff}
+.bp-retorno{background:var(--indigo);color:#fff}
+.bp-saida{background:var(--red);color:#fff}
+.bp-off{background:rgba(0,0,0,.06);color:var(--tt);cursor:not-allowed}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:1rem 1.25rem}
+.metric-l{font-size:12px;color:var(--ts);margin-bottom:4px}
+.metric-v{font-size:26px;font-weight:500;font-family:'DM Mono',monospace}
+.reg-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.reg-item:last-child{border-bottom:none}
+.reg-top{display:flex;align-items:flex-start;justify-content:space-between}
+.reg-name{font-size:14px;font-weight:500}
+.reg-time{font-size:12px;color:var(--ts);font-family:'DM Mono',monospace;margin-top:1px}
+.reg-loc{font-size:11px;color:var(--tt);margin-top:2px}
+.reg-acts{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.badge{font-size:11px;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.b-entrada{background:var(--gbg);color:var(--gt)}
+.b-saida_almoco{background:var(--abg);color:var(--at)}
+.b-retorno_almoco{background:var(--ibg);color:var(--it)}
+.b-saida{background:var(--rbg);color:var(--rt)}
+.icon-btn{background:none;border:none;color:var(--tt);font-size:15px;cursor:pointer;padding:4px 5px;border-radius:5px;line-height:1}
+.icon-btn:hover{background:var(--bg);color:var(--text)}
+.icon-btn.del:hover{background:var(--rbg);color:var(--red)}
+.reg-obs{font-size:12px;color:var(--amber);background:var(--abg);border-radius:6px;padding:4px 9px;margin-top:5px;display:inline-block}
+.obs-edit{display:flex;gap:6px;margin-top:6px}
+.obs-edit button{padding:7px 12px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);cursor:pointer;white-space:nowrap}
+.obs-edit button:hover{background:var(--bg)}
+.filter-row{display:flex;gap:8px;margin-bottom:1rem}
+.filter-row select,.filter-row input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:14px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);outline:none}
+.rel-item{padding:12px 0;border-bottom:1px solid var(--border)}
+.rel-item:last-child{border-bottom:none}
+.rel-top{display:flex;justify-content:space-between;align-items:center}
+.rel-name{font-size:15px;font-weight:500}
+.rel-h{font-size:15px;font-weight:500;color:var(--blue);font-family:'DM Mono',monospace}
+.rel-d{font-size:12px;color:var(--ts);margin-top:3px}
+.btn-exp{width:100%;padding:13px;border:1px solid var(--green);border-radius:var(--r);background:var(--gbg);color:var(--gt);font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer}
+.btn-exp:hover{background:#d4f0e5}
+.empty{text-align:center;padding:2rem;color:var(--tt);font-size:14px}
+.admin-access{display:block;text-align:center;margin-top:.5rem;padding:.6rem;border:none;background:none;font-size:13px;color:var(--tt);cursor:pointer;font-family:'DM Sans',sans-serif}
+.admin-access:hover{color:var(--ts)}
+/* ADMIN OVERLAY */
+.admin-ov{position:fixed;inset:0;background:var(--bg);z-index:50;overflow-y:auto;padding:1.5rem 1rem 4rem;display:none}
+.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.admin-title{font-size:18px;font-weight:500;color:var(--indigo)}
+.btn-close-admin{padding:8px 16px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ts);cursor:pointer}
+.collab-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.collab-item:last-child{border-bottom:none}
+.collab-name{font-size:14px;font-weight:500}
+.collab-pin{font-size:12px;color:var(--ts);margin-top:1px}
+.collab-acts{display:flex;gap:6px}
+/* PIN MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;display:none}
+.modal-box{background:var(--surface);border-radius:var(--rl);padding:1.75rem 1.5rem;width:100%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-t{font-size:16px;font-weight:500;margin-bottom:4px}
+.modal-s{font-size:13px;color:var(--ts);margin-bottom:1.25rem}
+.pin-dots{display:flex;justify-content:center;gap:10px;margin-bottom:1.25rem}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border-s);background:transparent;transition:background .15s}
+.pin-dot.filled{background:var(--blue);border-color:var(--blue)}
+.pin-err{font-size:13px;color:var(--red);text-align:center;margin-bottom:10px;min-height:18px}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.nk{padding:16px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg);font-size:18px;font-weight:500;font-family:'DM Mono',monospace;cursor:pointer;transition:all .1s;border:1px solid var(--border)}
+.nk:active{background:var(--bbg);border-color:var(--blue);transform:scale(.95)}
+.nk.nk-sm{font-size:13px;color:var(--ts)}
+.modal-cancel{width:100%;margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:var(--r);background:transparent;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ts);cursor:pointer}
+.modal-cancel:hover{background:var(--bg)}
+</style>
+</head>
+<body>
+<div class="wrap" id="main-wrap">
+  <div class="header">
+    <h1>Registro de ponto</h1>
+    <span class="live" id="live-clock"></span>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('reg')">Registrar</button>
+    <button class="tab" onclick="showTab('hoje')">Hoje</button>
+    <button class="tab" onclick="showTab('rel')">Relatório</button>
+  </div>
+
+  <!-- REGISTRAR -->
+  <div id="tab-reg">
+    <div class="card">
+      <div class="lbl">Colaborador</div>
+      <div class="ugrid" id="user-grid"></div>
+      <div class="clock-block">
+        <div class="clock-t" id="clock-d">00:00:00</div>
+        <div class="clock-d" id="clock-date"></div>
+        <div id="status-d"></div>
+      </div>
+      <div class="obs-area">
+        <label for="obs-in">Observação (opcional)</label>
+        <textarea id="obs-in" rows="2" placeholder="Ex: Atraso por consulta médica, hora extra aprovada..."></textarea>
+      </div>
+      <button class="btn-p bp-off" id="btn-ponto" onclick="registrarPonto()">Selecione um colaborador</button>
+    </div>
+    <button class="admin-access" onclick="openAdminPin()">⚙️ Área administrativa</button>
+  </div>
+
+  <!-- HOJE -->
+  <div id="tab-hoje" style="display:none">
+    <div class="metrics">
+      <div class="metric"><div class="metric-l">Registros hoje</div><div class="metric-v" id="m-reg">0</div></div>
+      <div class="metric"><div class="metric-l">Presentes</div><div class="metric-v" id="m-pres">0</div></div>
+    </div>
+    <div class="card"><div class="lbl">Registros de hoje</div><div id="lista-hoje"></div></div>
+  </div>
+
+  <!-- RELATÓRIO -->
+  <div id="tab-rel" style="display:none">
+    <div class="filter-row">
+      <select id="f-mes" onchange="renderRel()"></select>
+      <select id="f-user" onchange="renderRel()"><option value="todos">Todos</option></select>
+    </div>
+    <div class="card"><div id="lista-rel"></div></div>
+    <button class="btn-exp" onclick="exportar()">⬇ Exportar para Excel</button>
+  </div>
+</div>
+
+<!-- ADMIN OVERLAY -->
+<div class="admin-ov" id="admin-ov">
+  <div class="wrap">
+    <div class="admin-header">
+      <span class="admin-title">⚙️ Administrador</span>
+      <button class="btn-close-admin" onclick="closeAdmin()">✕ Sair</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="showAdminTab('colab')">Colaboradores</button>
+      <button class="tab" onclick="showAdminTab('regs')">Registros</button>
+      <button class="tab" onclick="showAdminTab('arel')">Relatório</button>
+    </div>
+
+    <!-- COLABORADORES -->
+    <div id="atab-colab">
+      <div class="card">
+        <div class="lbl">Colaboradores</div>
+        <div id="admin-colab-list"></div>
+      </div>
+      <div class="card">
+        <div class="lbl">Adicionar colaborador</div>
+        <div class="row" style="margin-top:4px">
+          <input type="text" id="admin-new-user" placeholder="Nome do colaborador..."/>
+          <button onclick="adminAddUser()">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTROS -->
+    <div id="atab-regs" style="display:none">
+      <div class="filter-row">
+        <input type="date" id="a-date"/>
+        <select id="a-user"><option value="todos">Todos</option></select>
+      </div>
+      <div class="card"><div id="admin-regs-list"></div></div>
+    </div>
+
+    <!-- RELATÓRIO ADMIN -->
+    <div id="atab-arel" style="display:none">
+      <div class="filter-row">
+        <select id="af-mes" onchange="renderAdminRel()"></select>
+        <select id="af-user" onchange="renderAdminRel()"><option value="todos">Todos</option></select>
+      </div>
+      <div class="card"><div id="admin-rel-list"></div></div>
+      <button class="btn-exp" onclick="exportar(true)">⬇ Exportar para Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- PIN MODAL -->
+<div class="modal-ov" id="pin-modal">
+  <div class="modal-box">
+    <div class="modal-t" id="pm-title">PIN</div>
+    <div class="modal-s" id="pm-sub"></div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-err" id="pm-err"></div>
+    <div class="numpad">
+      <button class="nk" onclick="pk('1')">1</button><button class="nk" onclick="pk('2')">2</button><button class="nk" onclick="pk('3')">3</button>
+      <button class="nk" onclick="pk('4')">4</button><button class="nk" onclick="pk('5')">5</button><button class="nk" onclick="pk('6')">6</button>
+      <button class="nk" onclick="pk('7')">7</button><button class="nk" onclick="pk('8')">8</button><button class="nk" onclick="pk('9')">9</button>
+      <button class="nk nk-sm" onclick="pk('C')">Limpar</button><button class="nk" onclick="pk('0')">0</button><button class="nk nk-sm" onclick="pk('DEL')">⌫</button>
+    </div>
+    <button class="modal-cancel" onclick="cancelPin()">Cancelar</button>
+  </div>
+</div>
+
+<script>
+var MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+var DAYS = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+var TYPE_LABEL = {entrada:'Entrada',saida_almoco:'Saída Almoço',retorno_almoco:'Retorno Almoço',saida:'Saída'};
+var TYPE_BTN_TEXT = {entrada:'Registrar Entrada',saida_almoco:'Saída para Almoço',retorno_almoco:'Retorno do Almoço',saida:'Registrar Saída'};
+var TYPE_CLASS = {entrada:'bp-entrada',saida_almoco:'bp-almoco',retorno_almoco:'bp-retorno',saida:'bp-saida'};
+var BADGE_CLASS = {entrada:'b-entrada',saida_almoco:'b-saida_almoco',retorno_almoco:'b-retorno_almoco',saida:'b-saida'};
+
+var S = {
+  users: JSON.parse(localStorage.getItem('ponto_users') || '["Amanda","Robson","Nayara","Juliana"]'),
+  registros: JSON.parse(localStorage.getItem('ponto_registros') || '[]'),
+  pins: JSON.parse(localStorage.getItem('ponto_pins') || '{}'),
+  selUser: null, verUser: null, editObs: null
+};
+
+var PM = { mode:'', buf:'', first:'', key:'', cb:null };
+
+function sv() {
+  localStorage.setItem('ponto_users', JSON.stringify(S.users));
+  localStorage.setItem('ponto_registros', JSON.stringify(S.registros));
+  localStorage.setItem('ponto_pins', JSON.stringify(S.pins));
+}
+
+function pad(n){ return String(n).padStart(2,'0'); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function todayKey(){
+  var d=new Date();
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+}
+
+function updateClock(){
+  var n=new Date();
+  document.getElementById('clock-d').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+  document.getElementById('live-clock').textContent=pad(n.getHours())+':'+pad(n.getMinutes());
+  document.getElementById('clock-date').textContent=DAYS[n.getDay()]+', '+n.getDate()+' de '+MONTHS[n.getMonth()]+' de '+n.getFullYear();
+}
+
+function showTab(t){
+  ['reg','hoje','rel'].forEach(function(x){ document.getElementById('tab-'+x).style.display=x===t?'':'none'; });
+  document.querySelectorAll('#main-wrap .tabs .tab').forEach(function(el,i){
+    el.classList.toggle('active',['reg','hoje','rel'][i]===t);
+  });
+  if(t==='hoje') renderHoje();
+  if(t==='rel'){ popFilters(); renderRel(); }
+}
+
+function showAdminTab(t){
+  ['colab','regs','arel'].forEach(function(x){ document.getElementById('atab-'+x).style.display=x===t?'':'none'; });
+  document.querySelectorAll('#admin-ov .tabs .tab').forEach(function(el,i){
+    el.classList.toggle('active',['colab','regs','arel'][i]===t);
+  });
+  if(t==='colab') renderAdminColab();
+  if(t==='regs'){ popAdminUserFilter(); renderAdminRegs(); }
+  if(t==='arel'){ popAdminRelFilters(); renderAdminRel(); }
+}
+
+// ---- USER GRID ----
+function renderUsers(){
+  document.getElementById('user-grid').innerHTML = S.users.map(function(u){
+    var s=S.selUser===u?' sel':'';
+    var lock=S.pins[u]?' 🔒':'';
+    return '<button class="ubtn'+s+'" onclick="selectUser(\''+esc(u)+'\')">'+esc(u)+lock+'</button>';
+  }).join('');
+}
+
+function selectUser(u){
+  S.selUser=u; S.verUser=null; renderUsers(); updateBtn();
+  openPin(u, S.pins[u]?'verify':'create', function(){ S.verUser=u; updateBtn(); });
+}
+
+// ---- NEXT TYPE ----
+function getNextType(user){
+  var regs=S.registros.filter(function(r){ return r.user===user&&r.date===todayKey(); });
+  if(!regs.length) return 'entrada';
+  var last=regs.slice().sort(function(a,b){ return a.ts-b.ts; }).pop().type;
+  if(last==='entrada') return 'saida_almoco';
+  if(last==='saida_almoco') return 'retorno_almoco';
+  if(last==='retorno_almoco') return 'saida';
+  return null;
+}
+
+function getLastType(user){
+  var regs=S.registros.filter(function(r){ return r.user===user&&r.date===todayKey(); });
+  if(!regs.length) return null;
+  return regs.slice().sort(function(a,b){ return a.ts-b.ts; }).pop().type;
+}
+
+function updateBtn(){
+  var btn=document.getElementById('btn-ponto');
+  var sd=document.getElementById('status-d');
+  if(!S.verUser){
+    btn.className='btn-p bp-off';
+    btn.textContent=S.selUser?'Aguardando PIN...':'Selecione um colaborador';
+    sd.innerHTML=''; return;
+  }
+  var next=getNextType(S.verUser);
+  var last=getLastType(S.verUser);
+  if(!next){
+    btn.className='btn-p bp-off'; btn.textContent='Jornada encerrada';
+    sd.innerHTML='<span class="pill pill-done">Jornada encerrada ✓</span>'; return;
+  }
+  btn.className='btn-p '+TYPE_CLASS[next];
+  btn.textContent=TYPE_BTN_TEXT[next];
+  if(!last) sd.innerHTML='<span class="pill pill-out">Fora do trabalho</span>';
+  else if(last==='entrada'||last==='retorno_almoco') sd.innerHTML='<span class="pill pill-in">Em serviço</span>';
+  else if(last==='saida_almoco') sd.innerHTML='<span class="pill pill-almoco">Em almoço 🍽</span>';
+}
+
+// ---- REGISTRAR ----
+function registrarPonto(){
+  if(!S.verUser) return;
+  var next=getNextType(S.verUser);
+  if(!next) return;
+  var btn=document.getElementById('btn-ponto');
+  btn.disabled=true; btn.textContent='📍 Obtendo localização...';
+  function doReg(lat,lon,acc){
+    var n=new Date();
+    var reg={
+      id:Date.now(), user:S.verUser, type:next,
+      date:todayKey(), time:pad(n.getHours())+':'+pad(n.getMinutes()),
+      ts:n.getTime(), obs:document.getElementById('obs-in').value.trim(),
+      lat:lat, lon:lon, acc:acc
+    };
+    S.registros.push(reg); sv();
+    document.getElementById('obs-in').value='';
+    S.verUser=null; S.selUser=null; renderUsers();
+    btn.textContent='✓ '+TYPE_LABEL[next]+' às '+reg.time;
+    setTimeout(function(){ btn.disabled=false; updateBtn(); },2500);
+  }
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      function(p){ doReg(p.coords.latitude,p.coords.longitude,Math.round(p.coords.accuracy)); },
+      function(){ doReg(null,null,null); },{timeout:6000}
+    );
+  } else doReg(null,null,null);
+}
+
+// ---- HOJE ----
+function renderHoje(){
+  var regs=S.registros.filter(function(r){ return r.date===todayKey(); }).slice().sort(function(a,b){ return b.ts-a.ts; });
+  document.getElementById('m-reg').textContent=regs.length;
+  var pres={};
+  S.registros.filter(function(r){ return r.date===todayKey()&&r.type==='entrada'; }).forEach(function(r){ pres[r.user]=1; });
+  document.getElementById('m-pres').textContent=Object.keys(pres).length;
+  var el=document.getElementById('lista-hoje');
+  if(!regs.length){ el.innerHTML='<div class="empty">Nenhum registro hoje</div>'; return; }
+  el.innerHTML=regs.map(function(r){
+    var loc=r.lat?'<div class="reg-loc">📍 '+r.lat.toFixed(5)+', '+r.lon.toFixed(5)+(r.acc?' (±'+r.acc+'m)':'')+'</div>':'';
+    var obsHtml='';
+    if(S.editObs===r.id){
+      obsHtml='<div class="obs-edit"><textarea rows="2" id="oe-'+r.id+'">'+esc(r.obs||'')+'</textarea><button onclick="saveObs('+r.id+')">Salvar</button><button onclick="S.editObs=null;renderHoje()">Cancelar</button></div>';
+    } else if(r.obs){
+      obsHtml='<span class="reg-obs">📝 '+esc(r.obs)+'</span>';
+    }
+    return '<div class="reg-item"><div class="reg-top">'
+      +'<div><div class="reg-name">'+esc(r.user)+'</div><div class="reg-time">'+r.time+'</div>'+loc+'</div>'
+      +'<div class="reg-acts"><span class="badge '+BADGE_CLASS[r.type]+'">'+TYPE_LABEL[r.type]+'</span>'
+      +'<button class="icon-btn" onclick="S.editObs=S.editObs==='+r.id+'?null:'+r.id+';renderHoje()">'+(r.obs?'✏️':'💬')+'</button>'
+      +'</div></div>'+(obsHtml?'<div>'+obsHtml+'</div>':'')+'</div>';
+  }).join('');
+}
+
+function saveObs(id){
+  var v=document.getElementById('oe-'+id).value.trim();
+  S.registros=S.registros.map(function(r){ return r.id===id?Object.assign({},r,{obs:v}):r; });
+  S.editObs=null; sv(); renderHoje();
+}
+
+// ---- RELATÓRIO ----
+function popFilters(){
+  var meses={};
+  S.registros.forEach(function(r){ meses[r.date.slice(0,7)]=1; });
+  var n=new Date(), cur=n.getFullYear()+'-'+pad(n.getMonth()+1);
+  meses[cur]=1;
+  var sel=document.getElementById('f-mes'), curV=sel.value||cur;
+  sel.innerHTML=Object.keys(meses).sort().reverse().map(function(ym){
+    var p=ym.split('-');
+    return '<option value="'+ym+'"'+(ym===curV?' selected':'')+'>'+MONTHS[parseInt(p[1])-1]+' '+p[0]+'</option>';
+  }).join('');
+  var us=document.getElementById('f-user'), ucur=us.value||'todos';
+  us.innerHTML='<option value="todos">Todos</option>'+S.users.map(function(u){
+    return '<option value="'+u+'"'+(u===ucur?' selected':'')+'>'+u+'</option>';
+  }).join('');
+}
+
+function calcHoras(regs){
+  var tot=0,lastIn=null;
+  regs.slice().sort(function(a,b){ return a.ts-b.ts; }).forEach(function(r){
+    if(r.type==='entrada'||r.type==='retorno_almoco') lastIn=r.ts;
+    if((r.type==='saida_almoco'||r.type==='saida')&&lastIn){ tot+=r.ts-lastIn; lastIn=null; }
+  });
+  return { ms:tot, str:Math.floor(tot/3600000)+'h '+pad(Math.floor((tot%3600000)/60000))+'m' };
+}
+
+function renderRel(){
+  var mes=document.getElementById('f-mes').value;
+  var user=document.getElementById('f-user').value;
+  renderRelTo(document.getElementById('lista-rel'), mes, user, false);
+}
+
+function renderRelTo(el, mes, user, withDelete){
+  var regs=S.registros.filter(function(r){ return r.date.startsWith(mes)&&(user==='todos'||r.user===user); });
+  if(!regs.length){ el.innerHTML='<div class="empty">Nenhum registro neste período</div>'; return; }
+  var byU={};
+  regs.forEach(function(r){ if(!byU[r.user]) byU[r.user]=[]; byU[r.user].push(r); });
+  el.innerHTML=Object.keys(byU).map(function(u){
+    var rs=byU[u], c=calcHoras(rs);
+    var dias={};rs.forEach(function(r){ dias[r.date]=1; });
+    var obsN=rs.filter(function(r){ return r.obs; }).length;
+    return '<div class="rel-item"><div class="rel-top"><span class="rel-name">'+esc(u)+'</span><span class="rel-h">'+c.str+'</span></div>'
+      +'<div class="rel-d">'+Object.keys(dias).length+' dia(s) · '+(obsN?obsN+' obs.':'sem obs.')+'</div></div>';
+  }).join('');
+}
+
+// ---- ADMIN ----
+function openAdmin(){
+  document.getElementById('admin-ov').style.display='block';
+  showAdminTab('colab');
+}
+function closeAdmin(){ document.getElementById('admin-ov').style.display='none'; }
+
+function openAdminPin(){
+  var key='__admin__';
+  if(!S.pins[key]){
+    openPin(key,'create',function(){ openAdmin(); });
+  } else {
+    openPin(key,'verify',function(){ openAdmin(); });
+  }
+}
+
+function renderAdminColab(){
+  var el=document.getElementById('admin-colab-list');
+  if(!S.users.length){ el.innerHTML='<div class="empty">Nenhum colaborador</div>'; return; }
+  el.innerHTML=S.users.map(function(u){
+    var hasPin=S.pins[u]?'PIN configurado':'Sem PIN';
+    return '<div class="collab-item">'
+      +'<div><div class="collab-name">'+esc(u)+'</div><div class="collab-pin">'+hasPin+'</div></div>'
+      +'<div class="collab-acts">'
+      +(S.pins[u]?'<button class="btn-sm" onclick="resetPin(\''+esc(u)+'\')">Resetar PIN</button>':'')
+      +'<button class="btn-sm" style="color:var(--red);border-color:var(--red)" onclick="removeUser(\''+esc(u)+'\')">Remover</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+function adminAddUser(){
+  var inp=document.getElementById('admin-new-user');
+  var name=inp.value.trim();
+  if(!name||S.users.indexOf(name)>=0){ inp.value=''; return; }
+  S.users.push(name); sv(); inp.value='';
+  renderAdminColab(); popAdminUserFilter(); popFilters();
+}
+document.getElementById('admin-new-user').addEventListener('keydown',function(e){ if(e.key==='Enter') adminAddUser(); });
+
+function removeUser(u){
+  if(!confirm('Remover '+u+'? Os registros dele serão mantidos.')) return;
+  S.users=S.users.filter(function(x){ return x!==u; });
+  delete S.pins[u]; sv(); renderAdminColab();
+}
+
+function resetPin(u){
+  if(!confirm('Resetar PIN de '+u+'? Ele precisará criar um novo.')) return;
+  delete S.pins[u]; sv(); renderAdminColab();
+}
+
+function popAdminUserFilter(){
+  var sel=document.getElementById('a-user');
+  var cur=sel.value||'todos';
+  sel.innerHTML='<option value="todos">Todos</option>'+S.users.map(function(u){
+    return '<option value="'+u+'"'+(u===cur?' selected':'')+'>'+u+'</option>';
+  }).join('');
+  var sel2=document.getElementById('af-user');
+  var cur2=sel2.value||'todos';
+  sel2.innerHTML='<option value="todos">Todos</option>'+S.users.map(function(u){
+    return '<option value="'+u+'"'+(u===cur2?' selected':'')+'>'+u+'</option>';
+  }).join('');
+}
+
+function renderAdminRegs(){
+  var dateInp=document.getElementById('a-date');
+  if(!dateInp.value) dateInp.value=todayKey();
+  dateInp.onchange=renderAdminRegs;
+  document.getElementById('a-user').onchange=renderAdminRegs;
+  var date=dateInp.value;
+  var user=document.getElementById('a-user').value;
+  var regs=S.registros.filter(function(r){ return r.date===date&&(user==='todos'||r.user===user); })
+    .slice().sort(function(a,b){ return b.ts-a.ts; });
+  var el=document.getElementById('admin-regs-list');
+  if(!regs.length){ el.innerHTML='<div class="empty">Nenhum registro nesta data</div>'; return; }
+  el.innerHTML=regs.map(function(r){
+    var loc=r.lat?'<div class="reg-loc">📍 '+r.lat.toFixed(5)+', '+r.lon.toFixed(5)+'</div>':'';
+    return '<div class="reg-item"><div class="reg-top">'
+      +'<div><div class="reg-name">'+esc(r.user)+'</div><div class="reg-time">'+r.time+(r.obs?' · 📝 '+esc(r.obs):'')+'</div>'+loc+'</div>'
+      +'<div class="reg-acts"><span class="badge '+BADGE_CLASS[r.type]+'">'+TYPE_LABEL[r.type]+'</span>'
+      +'<button class="icon-btn del" title="Excluir" onclick="adminDelReg('+r.id+')">🗑</button>'
+      +'</div></div></div>';
+  }).join('');
+}
+
+function adminDelReg(id){
+  if(!confirm('Excluir este registro?')) return;
+  S.registros=S.registros.filter(function(r){ return r.id!==id; });
+  sv(); renderAdminRegs();
+}
+
+function popAdminRelFilters(){
+  var meses={};
+  S.registros.forEach(function(r){ meses[r.date.slice(0,7)]=1; });
+  var n=new Date(), cur=n.getFullYear()+'-'+pad(n.getMonth()+1);
+  meses[cur]=1;
+  var sel=document.getElementById('af-mes'), curV=sel.value||cur;
+  sel.innerHTML=Object.keys(meses).sort().reverse().map(function(ym){
+    var p=ym.split('-');
+    return '<option value="'+ym+'"'+(ym===curV?' selected':'')+'>'+MONTHS[parseInt(p[1])-1]+' '+p[0]+'</option>';
+  }).join('');
+}
+
+function renderAdminRel(){
+  var mes=document.getElementById('af-mes').value;
+  var user=document.getElementById('af-user').value;
+  renderRelTo(document.getElementById('admin-rel-list'), mes, user, true);
+}
+
+// ---- EXPORT ----
+function exportar(adminMode){
+  var mes, user;
+  if(adminMode){ mes=document.getElementById('af-mes').value; user=document.getElementById('af-user').value; }
+  else { mes=document.getElementById('f-mes').value; user=document.getElementById('f-user').value; }
+  var regs=S.registros.filter(function(r){ return r.date.startsWith(mes)&&(user==='todos'||r.user===user); });
+  if(!regs.length){ alert('Nenhum registro para exportar.'); return; }
+  var p=mes.split('-');
+  var nomeMes=MONTHS[parseInt(p[1])-1]+'_'+p[0];
+  var byUD={};
+  regs.forEach(function(r){ var k=r.user+'|'+r.date; if(!byUD[k]) byUD[k]=[]; byUD[k].push(r); });
+  var hDia={};
+  Object.keys(byUD).forEach(function(k){
+    var c=calcHoras(byUD[k]); hDia[k]=c.ms>0?c.str:'-';
+  });
+  var linhas=[['Colaborador','Data','Hora','Tipo','Horas no dia','Localização','Precisão (m)','Observação']];
+  regs.slice().sort(function(a,b){ return a.user.localeCompare(b.user)||a.ts-b.ts; }).forEach(function(r){
+    var dp=r.date.split('-');
+    var k=r.user+'|'+r.date;
+    var sorted=byUD[k].slice().sort(function(a,b){ return a.ts-b.ts; });
+    var isLast=sorted[sorted.length-1].id===r.id;
+    var loc=r.lat?r.lat.toFixed(6)+', '+r.lon.toFixed(6):'Não capturada';
+    linhas.push([r.user,dp[2]+'/'+dp[1]+'/'+dp[0],r.time,TYPE_LABEL[r.type],isLast?hDia[k]:'',loc,r.acc||'',r.obs||'']);
+  });
+  var csv='\uFEFF'+linhas.map(function(l){
+    return l.map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(';');
+  }).join('\r\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download='ponto_'+nomeMes+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+// ---- PIN MODAL ----
+function openPin(key, mode, cb){
+  PM.key=key; PM.mode=mode; PM.buf=''; PM.first=''; PM.cb=cb;
+  document.getElementById('pm-err').textContent='';
+  var isAdmin=key==='__admin__';
+  var name=isAdmin?'Administrador':key;
+  if(mode==='create'){
+    document.getElementById('pm-title').textContent='Criar PIN — '+name;
+    document.getElementById('pm-sub').textContent='Escolha um PIN de 4 dígitos';
+  } else {
+    document.getElementById('pm-title').textContent='Olá, '+name+'!';
+    document.getElementById('pm-sub').textContent='Digite seu PIN de 4 dígitos';
+  }
+  updDots();
+  document.getElementById('pin-modal').style.display='flex';
+}
+
+function cancelPin(){
+  document.getElementById('pin-modal').style.display='none';
+  S.selUser=null; S.verUser=null; PM.buf=''; renderUsers(); updateBtn();
+}
+
+function updDots(){
+  for(var i=0;i<4;i++){
+    var d=document.getElementById('pd'+i);
+    d.className='pin-dot'+(PM.buf.length>i?' filled':'');
+  }
+}
+
+function pk(k){
+  document.getElementById('pm-err').textContent='';
+  if(k==='DEL'){ PM.buf=PM.buf.slice(0,-1); updDots(); return; }
+  if(k==='C'){ PM.buf=''; updDots(); return; }
+  if(PM.buf.length>=4) return;
+  PM.buf+=k; updDots();
+  if(PM.buf.length===4) setTimeout(pinDone,120);
+}
+
+function pinDone(){
+  if(PM.mode==='create'){
+    PM.first=PM.buf; PM.buf=''; PM.mode='confirm';
+    document.getElementById('pm-title').textContent='Confirmar PIN';
+    document.getElementById('pm-sub').textContent='Digite novamente para confirmar';
+    updDots();
+  } else if(PM.mode==='confirm'){
+    if(PM.buf===PM.first){
+      S.pins[PM.key]=PM.buf; sv();
+      document.getElementById('pin-modal').style.display='none';
+      if(PM.cb) PM.cb();
+    } else {
+      document.getElementById('pm-err').textContent='PINs não coincidem. Tente novamente.';
+      PM.buf=''; PM.first=''; PM.mode='create';
+      var isAdmin=PM.key==='__admin__';
+      document.getElementById('pm-title').textContent='Criar PIN — '+(isAdmin?'Administrador':PM.key);
+      document.getElementById('pm-sub').textContent='Escolha um PIN de 4 dígitos';
+      updDots();
+    }
+  } else {
+    if(PM.buf===S.pins[PM.key]){
+      document.getElementById('pin-modal').style.display='none';
+      if(PM.cb) PM.cb();
+    } else {
+      document.getElementById('pm-err').textContent='PIN incorreto. Tente novamente.';
+      PM.buf=''; updDots();
+    }
+  }
+}
+
+document.getElementById('admin-new-user').addEventListener('keydown',function(e){ if(e.key==='Enter') adminAddUser(); });
+
+setInterval(updateClock,1000);
+updateClock(); renderUsers(); popFilters(); updateBtn();
+</script>
+</body>
+</html>
