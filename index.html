@@ -360,13 +360,31 @@ function registrarPonto(){
       id:Date.now(), user:S.verUser, type:next,
       date:todayKey(), time:pad(n.getHours())+':'+pad(n.getMinutes()),
       ts:n.getTime(), obs:document.getElementById('obs-in').value.trim(),
-      lat:lat, lon:lon, acc:acc
+      lat:lat, lon:lon, acc:acc, address:null
     };
-    S.registros.push(reg); sv();
-    document.getElementById('obs-in').value='';
-    S.verUser=null; S.selUser=null; renderUsers();
-    btn.textContent='✓ '+TYPE_LABEL[next]+' às '+reg.time;
-    setTimeout(function(){ btn.disabled=false; updateBtn(); },2500);
+    function finalizar(addr){
+      reg.address=addr;
+      S.registros.push(reg); sv();
+      document.getElementById('obs-in').value='';
+      S.verUser=null; S.selUser=null; renderUsers();
+      btn.textContent='✓ '+TYPE_LABEL[next]+' às '+reg.time;
+      setTimeout(function(){ btn.disabled=false; updateBtn(); },2500);
+    }
+    if(lat){
+      fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lon+'&format=json')
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          var a=d.address||{};
+          var partes=[];
+          if(a.road) partes.push(a.road);
+          if(a.suburb||a.neighbourhood) partes.push(a.suburb||a.neighbourhood);
+          if(a.city||a.town||a.village) partes.push(a.city||a.town||a.village);
+          finalizar(partes.length?partes.join(', '):d.display_name||'Localização capturada');
+        })
+        .catch(function(){ finalizar(lat.toFixed(5)+', '+lon.toFixed(5)); });
+    } else {
+      finalizar(null);
+    }
   }
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(
@@ -386,7 +404,8 @@ function renderHoje(){
   var el=document.getElementById('lista-hoje');
   if(!regs.length){ el.innerHTML='<div class="empty">Nenhum registro hoje</div>'; return; }
   el.innerHTML=regs.map(function(r){
-    var loc=r.lat?'<div class="reg-loc">📍 '+r.lat.toFixed(5)+', '+r.lon.toFixed(5)+(r.acc?' (±'+r.acc+'m)':'')+'</div>':'';
+    var locTxt=r.address||(r.lat?r.lat.toFixed(5)+', '+r.lon.toFixed(5):null);
+    var loc=locTxt?'<div class="reg-loc">📍 '+esc(locTxt)+'</div>':'';
     var obsHtml='';
     if(S.editObs===r.id){
       obsHtml='<div class="obs-edit"><textarea rows="2" id="oe-'+r.id+'">'+esc(r.obs||'')+'</textarea><button onclick="saveObs('+r.id+')">Salvar</button><button onclick="S.editObs=null;renderHoje()">Cancelar</button></div>';
@@ -582,7 +601,7 @@ function exportar(adminMode){
     var k=r.user+'|'+r.date;
     var sorted=byUD[k].slice().sort(function(a,b){ return a.ts-b.ts; });
     var isLast=sorted[sorted.length-1].id===r.id;
-    var loc=r.lat?r.lat.toFixed(6)+', '+r.lon.toFixed(6):'Não capturada';
+    var loc=r.address||(r.lat?r.lat.toFixed(6)+', '+r.lon.toFixed(6):'Não capturada');
     linhas.push([r.user,dp[2]+'/'+dp[1]+'/'+dp[0],r.time,TYPE_LABEL[r.type],isLast?hDia[k]:'',loc,r.acc||'',r.obs||'']);
   });
   var csv='\uFEFF'+linhas.map(function(l){
