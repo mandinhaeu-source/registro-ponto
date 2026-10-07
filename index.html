@@ -439,6 +439,10 @@ function registrarPonto(){
       reg.address=addr;
       db.from('registros').insert({id:reg.id,user_name:reg.user,type:reg.type,date:reg.date,time:reg.time,ts:reg.ts,obs:reg.obs||null,lat:reg.lat||null,lon:reg.lon||null,acc:reg.acc||null,address:reg.address||null}).then(function(res){
         if(res.error){alert('Erro ao salvar: '+res.error.message);btn.disabled=false;updateBtn();return;}
+        // Atualiza cache local imediatamente sem esperar realtime
+        S.todayRegs=S.todayRegs.filter(function(x){return x.id!==reg.id;});
+        S.todayRegs.push(normalize({id:reg.id,user_name:reg.user,type:reg.type,date:reg.date,time:reg.time,ts:reg.ts,obs:reg.obs||null,lat:reg.lat||null,lon:reg.lon||null,acc:reg.acc||null,address:reg.address||null}));
+        S.todayRegs.sort(function(a,b){return a.ts-b.ts;});
         document.getElementById('obs-in').value='';
         S.verUser=null;S.selUser=null;
         document.getElementById('greeting').innerHTML='';
@@ -450,7 +454,7 @@ function registrarPonto(){
     if(lat){
       fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lon+'&format=json')
         .then(function(r){return r.json();})
-        .then(function(d){var a=d.address||{},pts=[];if(a.road)pts.push(a.road);if(a.suburb||a.neighbourhood)pts.push(a.suburb||a.neighbourhood);if(a.city||a.town||a.village)pts.push(a.city||a.town||a.village);finalizar(pts.length?pts.join(', '):d.display_name||'Localização capturada');})
+        .then(function(d){var a=d.address||{};finalizar(a.city||a.town||a.village||a.county||'Localização capturada');})
         .catch(function(){finalizar(lat.toFixed(5)+', '+lon.toFixed(5));});
     } else finalizar(null);
   }
